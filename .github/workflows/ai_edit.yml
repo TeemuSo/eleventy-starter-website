@@ -51,7 +51,16 @@ jobs:
           # --yes  : auto-accept the AI’s edits
           # -m     : treat workflow input as the chat message
           # --commit : commit the diff
-          aider --yes --map-refresh always --map-tokens 16000 --model gemini -m "${{ github.event.inputs.prompt }}" $extra --commit
+          aider \
+            --yes \
+            --map-refresh always \
+            --map-tokens 8000 \
+            --model gemini \
+            -m "${{ github.event.inputs.prompt }}" \
+            .eleventy.js netlify.toml tailwind.config.js postcss.config.js \
+            src/**/*.{njk,html,liquid,md,css,scss,js} \
+            admin/config.yml \
+            $extra --commit
 
       - name: Configure git author
         run: |
