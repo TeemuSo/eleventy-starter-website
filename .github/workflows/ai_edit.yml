@@ -57,9 +57,7 @@ jobs:
             --map-tokens 8000 \
             --model gemini \
             -m "${{ github.event.inputs.prompt }}" \
-            .eleventy.js netlify.toml tailwind.config.js postcss.config.js \
-            src/**/*.{njk,html,liquid,md,css,scss,js} \
-            admin/config.yml \
+            $(git ls-files) \
             $extra --commit
 
       - name: Configure git author
