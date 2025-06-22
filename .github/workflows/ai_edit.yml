@@ -38,10 +38,15 @@ jobs:
           echo "Fetching $DEPLOY_URL"
           curl -L "$DEPLOY_URL" -o _snapshot.html || true
 
+      - name: Configure git author
+        run: |
+          git config user.name  "Aider Bot"
+          git config user.email "aider@localhost"
+          
       - name: 🤖 Run Aider on prompt
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          
+      
         run: |
           extra=""
           if [ -f _snapshot.html ]; then
@@ -54,16 +59,11 @@ jobs:
           aider \
             --yes \
             --map-refresh always \
-            --map-tokens 8000 \
+            --map-tokens 6000 \
             --model gemini \
             -m "${{ github.event.inputs.prompt }}" \
             $(git ls-files) \
             $extra --commit
-
-      - name: Configure git author
-        run: |
-          git config user.name  "Aider Bot"
-          git config user.email "aider@localhost"
 
       - name: 🚀 Push changes back
         run: |
