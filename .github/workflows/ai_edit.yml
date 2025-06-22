@@ -1,0 +1,54 @@
+name: AI Edit with Aider
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: "Natural language prompt for Aider (e.g. 'Change hero title to Purrfect Café')"
+        required: true
+        type: string
+
+jobs:
+  ai_edit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Install Aider
+        run: |
+          pip install "aider-chat[cli]"
+
+      - name: 🌐 Fetch live site for context (optional)
+        if: ${{ env.DEPLOY_URL != '' }}
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+        run: |
+          echo "Fetching $DEPLOY_URL"
+          curl -L "$DEPLOY_URL" -o _snapshot.html || true
+
+      - name: 🤖 Run Aider on prompt
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          extra=""
+          if [ -f _snapshot.html ]; then
+            extra="-C _snapshot.html"
+          fi
+          # --yes to auto-apply, --commit to commit results
+          aider --yes "${{ github.event.inputs.prompt }}" $extra --commit
+
+      - name: 🚀 Push changes back
+        run: |
+          git push
