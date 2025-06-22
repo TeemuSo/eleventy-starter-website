@@ -46,8 +46,11 @@ jobs:
           if [ -f _snapshot.html ]; then
             extra="-C _snapshot.html"
           fi
-          # --yes to auto-apply, --commit to commit results
-          aider --yes --patch "${{ github.event.inputs.prompt }}" $extra --commit
+      
+          # --yes  : auto-accept the AI’s edits
+          # -m     : treat workflow input as the chat message
+          # --commit : commit the diff
+          aider --yes -m "${{ github.event.inputs.prompt }}" $extra --commit
 
       - name: Configure git author
         run: |
